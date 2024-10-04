@@ -1,13 +1,13 @@
-# OpenWrt-CloudflareSTHosts
+# OpenWrt-AdGuardHome-CloudflareST
 
-- 基于 [CloudflareSpeedTest](https://github.com/XIU2/CloudflareSpeedTest) 项目中脚本修改
+- 基于 [OpenWrt-CloudflareSTHosts](https://github.com/zjjxwhh/OpenWrt-CloudflareSTHosts) 项目中脚本修改
 - 需要配合 [openwrt-cdnspeedtest](https://github.com/immortalwrt-collections/openwrt-cdnspeedtest) 项目使用
 
 ## 项目简介
 
 供 OpenWrt 路由器使用的 Cloudflare IP 优选脚本
 
-可以测试 Cloudflare CDN 延迟和速度，获取最快 IP (IPv4 及 IPv6)，自动替换 hosts 中域名对应的 IP 地址，并重启路由器 dnsmasq 服务
+可以测试 Cloudflare CDN 延迟和速度，获取最快 IP (IPv4 及 IPv6)，自动替换 AdGuardHome 中域名对应的重写 IP 地址，并重启 AdGuardHome
 
 ## 使用方法
 
@@ -43,25 +43,13 @@
 
 ### 2. 脚本配置
 
-1. `/etc` 目录下创建 `myhosts` 文件并在 OpenWrt 路由器 **额外的 HOSTS 文件** 配置项填入 `/etc/myhosts`
-2. `myhosts` 文件中添加需要进行 Cloudflare IP 优选的域名，首次运行时需要将所有域名对应的 IP 配置为相同值，IPv4 与 IPv6 需要分别配置
-
-    ```text
-    # IPv4
-    1.1.1.1 example-domain1.com
-    1.1.1.1 example-domain2.com
-
-    # IPv6
-    2.2.2.2 example-domain1.com
-    2.2.2.2 example-domain2.com
-    ```
-
-3. 下载优选脚本及 Cloudflare IP 列表，上传至 OpenWrt 路由器 `/etc/CloudflareST` 目录
-4. ssh 连接至路由器并手动运行
+1. 在 AdGuardHome `DNS重写` 中添加需要进行 Cloudflare IP 优选的域名，首次运行时需要将所有域名对应的 IP 配置为相同值，IPv4 与 IPv6 需要分别配置，如分别添加 `cloudflare.com` 重写至 `1.1.1.1` (IPv4)，`cloudflare.com` 重写至 `2.2.2.2` (IPv6)
+2. 下载优选脚本及 Cloudflare IP 列表，上传至 OpenWrt 路由器 `/etc/AdGuardHome-CloudflareST` 目录
+3. ssh 连接至路由器并手动运行
 
     ```bash
-    cd /etc/CloudflareST
-    bash cfst_hosts.sh
+    cd /etc/AdGuardHome-CloudflareST
+    bash cfst_adg.sh
     # 分别输入 IPv4 地址 (1.1.1.1) 及 IPv6 地址 (2.2.2.2)
     ```
 
@@ -69,7 +57,7 @@
 
     ```cron
     # 每天 2:00 运行
-    0 2 * * * cd /etc/CloudflareST/ && bash cfst_hosts.sh
+    0 2 * * * cd /etc/AdGuardHome-CloudflareST/ && bash cfst_adg.sh
     ```
 
 ## 注意事项
@@ -77,7 +65,6 @@
 1. 可在 `/etc/sysupgrade.conf` 文件中增加条目，避免升级时相关脚本及配置被清除
 
    ```text
-   # CloudflareSTHosts
-   /etc/myhosts
-   /etc/CloudflareST
+   # AdGuardHome-CloudflareST
+   /etc/AdGuardHome-CloudflareST
    ```
