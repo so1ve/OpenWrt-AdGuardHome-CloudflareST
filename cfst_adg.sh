@@ -3,6 +3,10 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 # --------------------------------------------------------------
 #	[修改脚本信息]
+#	作者: Ray (@so1ve)
+#	修改说明: 使用 AdGuardHome 重写功能
+# --------------------------------------------------------------
+#	[原始修改脚本信息]
 #	作者: Hervey
 #	修改说明: 支持同时修改 Hosts 中的 IPv4 及 IPv6 地址
 # --------------------------------------------------------------
@@ -66,9 +70,6 @@ _UPDATE() {
 	BESTIPV4=$(sed -n "2,1p" result_hosts_ipv4.txt | awk -F, '{print $1}')
 	BESTIPV6=$(sed -n "2,1p" result_hosts_ipv6.txt | awk -F, '{print $1}')
 
-	echo "开始备份 Hosts 文件（myhosts_backup）..."
-	\cp -f /etc/myhosts /etc/CloudflareST/myhosts_backup
-
 	if [[ -z "${BESTIPV4}" ]]; then
 		echo "CloudflareST 测速结果 IPv4 数量为 0，跳过下面步骤..."
 	else
@@ -76,7 +77,7 @@ _UPDATE() {
 		echo -e "\n旧 IPv4 为 ${NOWIPV4}\n新 IPv4 为 ${BESTIPV4}\n"
 
 		echo -e "开始替换 IPv4..."
-		sed -i 's/'${NOWIPV4}'/'${BESTIPV4}'/g' /etc/myhosts
+		sed -i 's/'${NOWIPV4}'/'${BESTIPV4}'/g' /etc/AdGuardHome.yaml
 		echo -e "完成替换 IPv4..."
 	fi
 
@@ -87,13 +88,14 @@ _UPDATE() {
 		echo -e "\n旧 IPv6 为 ${NOWIPV6}\n新 IPv6 为 ${BESTIPV6}\n"
 
 		echo -e "开始替换 IPv6..."
-		sed -i 's/'${NOWIPV6}'/'${BESTIPV6}'/g' /etc/myhosts
+		sed -i 's/'${NOWIPV6}'/'${BESTIPV6}'/g' /etc/AdGuardHome.yaml
 		echo -e "完成替换 IPv6..."
 	fi
 
-	echo -e "开始重启 dnsmasq 服务..."
-	/etc/init.d/dnsmasq restart
-	echo -e "完成重启 dnsmasq 服务..."
+	echo -e "开始重启 AdGuardHome ..."
+	/usr/bin/AdGuardHome/AdGuardHome -s stop
+	/usr/bin/AdGuardHome/AdGuardHome -s start
+	echo -e "完成重启 AdGuardHome ..."
 }
 
 _CHECK
